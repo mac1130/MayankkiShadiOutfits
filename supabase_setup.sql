@@ -117,3 +117,8 @@ grant select, insert on public.rankings to anon, authenticated;
 grant select on storage.objects to anon, authenticated;
 grant insert on storage.objects to anon, authenticated;
 grant delete on storage.objects to authenticated;
+
+-- Admin-only comment editing. Public visitors can still read and add comments, but cannot edit them.
+drop policy if exists "admins edit comments" on public.comments;
+create policy "admins edit comments" on public.comments for update to authenticated using (exists (select 1 from public.admins a where a.user_id=auth.uid())) with check (exists (select 1 from public.admins a where a.user_id=auth.uid()));
+grant update on public.comments to authenticated;
